@@ -1,0 +1,6 @@
+# JetBrains
+.idea
+HackerRank.iml
+cmake-build-debug
+CMakeLists.txt
+osh

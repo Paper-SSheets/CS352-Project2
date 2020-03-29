@@ -1,5 +1,2 @@
-make: osh.c
-	gcc osh.c -o osh
-	
-clean:
-	rm -f osh
+make: encrypt.c
+	gcc encrypt.c -o encrypt -lpthread

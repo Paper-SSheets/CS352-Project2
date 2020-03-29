@@ -1,144 +1,110 @@
 [comment]: <> (This document was created and tested with JetBrain's MD extension.
                Apologies if it is not well-formatted for you when viewing.)
 
-# UNIX Shell
-- An implementation of the UNIX Shell project described at the end of 
-  Chapter 3: Processes, of the textbook **Operating System Concepts 
-  (Abraham Silberschatz, Greg Gagne, Peter B. Galvin) [2018]**.
+# Multi-Threaded Text File Encryptor
+- An implementation of Project II of the course COM S 352: Introduction to 
+  Operating Systems.
 
-## How to Test
+## Simple Testing
 - The tests for this will describe basic input/output for the program,
   as well as how to setup. Do experiment around, this predominantly 
-  follows the structure in the book's documentation.
+  follows the structure in the project's documentation.
   
 #### Creating the executable.
 - Simply type `make` after navigating to the root of the repository.
-- You should receive output like this:
+- You should receive output similar to the following:
   ```
-  [smsheets@pyrite-n2 steven_sheets_proj1]$ make
-  gcc osh.c -o osh
+    [smsheets@pyrite-n3 steven_sheets_proj2]$ make
+    gcc encrypt.c -o encrypt -lpthread
   ```
   - The `Makefile` also supports `make clean`, which 
     will simply remove the executable.
+  ```
+    [smsheets@pyrite-n3 steven_sheets_proj2]$ make clean
+    rm -f encrypt
+  ```
         
-#### Section I: Overview
-- After creating the executable, run `./osh`. Your current state
-  should look like this:
+#### Simple Testing
+- Within the `/docs` folder, I have left the given `infile2` and `outfile2` 
+  files for testing. I chose the the larger of the two files for predominant 
+  testing, as I expect it to find more possible errors. 
+- After creating the executable, run `./encrypt docs/infile2 test_infile2`. 
+  Your current state should be similar to the following:
   ```
-  [smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-  osh>
+  [smsheets@pyrite-n3 steven_sheets_proj2]$ ./encrypt docs/infile2 test_outfile2
+  Enter buffer size: 
   ```
-  - Run `cat osh.c`, your output should be the source code of this shell.
+- From here, let's use the recommended buffer size used in the documentation.
+  We will receive a rather large output, as well as creating a new file named
+  `test_outfile2` that will appear in the main directory. Your terminal should 
+  look like the following.
+  ``` 
+  [smsheets@pyrite-n3 steven_sheets_proj2]$ ./encrypt docs/infile2 test_outfile2
+  Enter buffer size: 1000
+  Input file contains
+  A: 14
+  B: 3
+  C: 5
+  D: 3
+  E: 23
+  F: 5
+  G: 1
+  H: 8
+  I: 13
+  K: 1
+  L: 6
+  M: 2
+  N: 10
+  O: 11
+  P: 7
+  R: 10
+  S: 12
+  T: 22
+  U: 6
+  V: 1
+  Y: 2
+  Z: 1
+  Output file contains
+  A: 6
+  B: 8
+  C: 4
+  D: 9
+  E: 12
+  F: 11
+  G: 5
+  H: 6
+  I: 7
+  J: 5
+  K: 1
+  L: 4
+  M: 5
+  N: 9
+  O: 10
+  P: 6
+  Q: 5
+  R: 4
+  S: 18
+  T: 10
+  U: 12
+  V: 3
+  X: 1
+  Y: 2
+  Z: 3
+  ```
+- Through the magic of `CTRL+C` + `CTRL+F` on the documentation, we ensure
+  that this is the expected output. Now, we just have to ensure that the 
+  outputted file is also correct. Open up `outfile2` (the given expected file)
+  and your newly created file `test_outfile2`. Both their contents should match
+  and look like the following: 
+  ```
+  Ugit hs bmouges ranolf hnqtt ghlf.
+  Moud tizt onn-bkpizbfsid bhbqadsesr 
+  (ljje ugetd: "{}:<>()*&^%)
+  asd sjlpmx cpoifc tp shf nuuouu eimd,
+  aoc asd nps rfoossee hn uge dnuoss.
   
-#### Section II: Executing Command in a Child Process
-- Run `ps -ael` at the `osh>` prompt. You should get some exciting
-  output. The values stored in the `args` array should be:
-  ```
-  args[0] = "ps"
-  args[1] = "-ael"
-  args[2] = NULL
-  ```
+  Cd svqe un tfrt bfajmsu z vbqifsy pe bveffq sjyet!
 
-#### Section III: Creating a History Feature
-- Our "history" feature is incredibly basic, as it only supports
-  running the immediate previously inputted command. There are
-  two possibilities worth testing here:
-  - There _is not_ a previous command:
-    - The easiest way to test this is by running the shell and 
-      immediately looking for history. Should look something like this: 
-      ```
-      osh>exit
-      [smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-      osh>!!
-      No commands in history.
-      ```
-  - There _is_ a previous command:
-    - To test this, let's use a simple command and ensure that
-      it repeats when the user inputs "!!". Should look something
-      like this:
-      ```
-      [smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-      osh>ls
-      cmake-build-debug  docs       Makefile  osh    output.txt
-      CMakeLists.txt     input.txt  old.c     osh.c  README.md
-      osh>!!
-      cmake-build-debug  docs       Makefile  osh    output.txt
-      CMakeLists.txt     input.txt  old.c     osh.c  README.md
-      osh>Nioce.
-      An error has occurred.
-      osh>
-      ```
-
-#### Section IV: Redirecting Input and Output
-- Here's where testing gets more interesting. I have set up a
-  `input.txt` file that contains the alphabet in reverse order.
-  To save space/time, I'll just show sample terminal input/output.
-  Note that `output.txt` will be overridden in these examples.
   ```
-  [smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-  osh>ls > output.txt
-  osh>cat output.txt
-  cmake-build-debug
-  CMakeLists.txt
-  docs
-  input.txt
-  Makefile
-  osh
-  osh.c
-  output.txt
-  README.md
-  osh>ls
-  cmake-build-debug  docs       Makefile  osh.c       README.md
-  CMakeLists.txt     input.txt  osh       output.txt
-  osh>
-  ```
+  Note: The newline at the end of the file is expected.
   
-  ```
-  [smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-  osh>sort < input.txt
-  a
-  b
-  c
-  d
-  e
-  f
-  g
-  h
-  i
-  j
-  k
-  l
-  m
-  n
-  o
-  p
-  q
-  r
-  s
-  t
-  u
-  v
-  w
-  x
-  y
-  z
-  osh>
-  ```
-  
-#### Section V: Communication via a Pipe
-- To test this, confirm pipe usage works as expected. Sample usage:
-```
-[smsheets@pyrite-n2 steven_sheets_proj1]$ ./osh
-osh>ls -l | less
-total 401
-drwxr-x---. 3 smsheets domain users    60 Feb 13 18:08 cmake-build-debug
--rwxr-x---. 1 smsheets domain users   143 Feb 13 19:36 CMakeLists.txt
-drwxr-x---. 2 smsheets domain users    80 Feb  9 00:24 docs
--rwxr-x---. 1 smsheets domain users    78 Feb 13 17:52 input.txt
--rwxr-x---. 1 smsheets domain users    55 Feb 13 17:46 Makefile
--rwxr-x--x. 1 smsheets domain users 23232 Feb 13 19:28 osh
--rwxr-x---. 1 smsheets domain users  9997 Feb 13 19:28 osh.c
--rwxr-x---. 1 smsheets domain users    88 Feb 13 19:39 output.txt
--rwxr-x---. 1 smsheets domain users  3482 Feb 13 19:40 README.md
-...
-```
